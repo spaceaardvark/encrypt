@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/spaceaardvark/encrypt.svg?branch=main)](https://travis-ci.com/spaceaardvark/encrypt)
+
 # Encrypt
 
 Encrypt and decrypt strings with a minimal interface.

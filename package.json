@@ -4,6 +4,9 @@
     "description": "Encrypt and decrypt strings. Sensible defaults, no dependencies, functional-friendly.",
     "main": "index.js",
     "type": "module",
+    "engines": {
+        "node": ">=14"
+    },
     "scripts": {
         "docs": "jsdoc2md index.js > ./docs.md",
         "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
@@ -20,7 +23,10 @@
         "crypto",
         "functional"
     ],
-    "author": "Space Aardvark",
+    "author": {
+        "name": "Space Aardvark",
+        "email": "spaceaardvarkgo@gmail.com"
+    },
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/spaceaardvark/encrypt/issues"
