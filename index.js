@@ -78,7 +78,7 @@ function generateIV(len) {
  */
 function generateKey(password, salt, hashAlgorithm) {
   return crypto
-    .createHash(hashAlgorithm, salt)
+    .createHmac(hashAlgorithm, salt)
     .update(password)
     .digest();
 }
