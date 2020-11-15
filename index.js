@@ -48,10 +48,11 @@ const emptyEncryptionBlock = {
  * @returns {string}
  * @private
  */
-const generateSalt = (len) =>
-  crypto
+function generateSalt(len) {
+  return crypto
     .randomBytes(len)
     .toString("hex");
+}
 
 /**
  * Generate a random initialization vector.
@@ -60,10 +61,11 @@ const generateSalt = (len) =>
  * @returns {string}
  * @private
  */
-const generateIV = (len) =>
-  crypto
+function generateIV(len) {
+  return crypto
     .randomBytes(len)
     .toString("hex");
+}
 
 /**
  * Generate a key using a passwora and a salt value.
@@ -74,11 +76,12 @@ const generateIV = (len) =>
  * @returns {Buffer}
  * @private
  */
-const generateKey = (password, salt, hashAlgorithm) =>
-  crypto
+function generateKey(password, salt, hashAlgorithm) {
+  return crypto
     .createHash(hashAlgorithm, salt)
     .update(password)
     .digest();
+}
 
 /**
  * Parse the encryption block produced by encrypt().
@@ -87,11 +90,11 @@ const generateKey = (password, salt, hashAlgorithm) =>
  * @returns {EncryptionBlock}
  * @private
  */
-const parseEncrypted = (encrypted) => {
+function parseEncrypted(encrypted) {
   let cursor, tokens, nextDelimiter;
 
   cursor = 0;
-  tokens = []
+  tokens = [];
 
   for (let i = 0; i < 4; i++) {
     nextDelimiter = encrypted.indexOf(DEFAULT_SETTINGS.manifestDelimiter, cursor);
@@ -105,7 +108,7 @@ const parseEncrypted = (encrypted) => {
     salt: tokens[2],
     iv: tokens[3],
     payload: encrypted.slice(cursor),
-  }
+  };
 }
 
 /**
@@ -115,8 +118,9 @@ const parseEncrypted = (encrypted) => {
  * @param {string} text - text to encrypt
  * @returns {string} hashAlgo:encryptAlgo:salt:iv:payload
  */
-export const encrypt = (password, text) => 
-  encryptWithSettings(password, DEFAULT_SETTINGS, text);
+export function encrypt(password, text) {
+  return encryptWithSettings(password, DEFAULT_SETTINGS, text);
+}
 
 /**
  * Encrypt a string with a password using custom encryption settings.
@@ -126,7 +130,7 @@ export const encrypt = (password, text) =>
  * @param {string} text - text to encrypt
  * @returns {string} hashAlgo:encryptAlgo:salt:iv:payload
  */
-export const encryptWithSettings = (password, settings, text) => {
+export function encryptWithSettings(password, settings, text) {
   let block, key, cipher, cipherText;
 
   block = {
@@ -140,8 +144,8 @@ export const encryptWithSettings = (password, settings, text) => {
   key = generateKey(password, block.salt, settings.hashAlgorithm);
 
   cipher = crypto.createCipheriv(
-    block.encryptAlgorithm, 
-    key, 
+    block.encryptAlgorithm,
+    key,
     Buffer.from(block.iv, "hex"));
   cipherText = cipher.update(text);
 
@@ -165,22 +169,22 @@ export const encryptWithSettings = (password, settings, text) => {
  * @param {string} encrypted- string produced by encrypt()
  * @returns {string}
  */
-export const decrypt = (password, encrypted) => {
+export function decrypt(password, encrypted) {
   let block, key, decipher, decipherText;
 
   block = parseEncrypted(encrypted);
   key = generateKey(password, block.salt, block.hashAlgorithm);
 
   decipher = crypto.createDecipheriv(
-    block.encryptAlgorithm, 
-    key, 
+    block.encryptAlgorithm,
+    key,
     Buffer.from(block.iv, "hex"));
   decipherText = decipher.update(Buffer.from(block.payload, "hex"));
 
   return Buffer
     .concat([decipherText, decipher.final()])
     .toString();
-};
+}
 
 /**
  * Internals exported for unit testing.

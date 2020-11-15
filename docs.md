@@ -1,13 +1,13 @@
-## Constants
+## Functions
 
 <dl>
-<dt><a href="#encrypt">encrypt</a> ⇒ <code>string</code></dt>
+<dt><a href="#encrypt">encrypt(password, text)</a> ⇒ <code>string</code></dt>
 <dd><p>Encrypt a string with a password.</p>
 </dd>
-<dt><a href="#encryptWithSettings">encryptWithSettings</a> ⇒ <code>string</code></dt>
+<dt><a href="#encryptWithSettings">encryptWithSettings(password, settings, text)</a> ⇒ <code>string</code></dt>
 <dd><p>Encrypt a string with a password using custom encryption settings.</p>
 </dd>
-<dt><a href="#decrypt">decrypt</a> ⇒ <code>string</code></dt>
+<dt><a href="#decrypt">decrypt(password, encrypted-)</a> ⇒ <code>string</code></dt>
 <dd><p>Decrypt text encrypted with encrypt().</p>
 </dd>
 </dl>
@@ -24,10 +24,10 @@ decrypt is included in the encrypted content.</p>
 
 <a name="encrypt"></a>
 
-## encrypt ⇒ <code>string</code>
+## encrypt(password, text) ⇒ <code>string</code>
 Encrypt a string with a password.
 
-**Kind**: global constant  
+**Kind**: global function  
 **Returns**: <code>string</code> - hashAlgo:encryptAlgo:salt:iv:payload  
 
 | Param | Type | Description |
@@ -37,10 +37,10 @@ Encrypt a string with a password.
 
 <a name="encryptWithSettings"></a>
 
-## encryptWithSettings ⇒ <code>string</code>
+## encryptWithSettings(password, settings, text) ⇒ <code>string</code>
 Encrypt a string with a password using custom encryption settings.
 
-**Kind**: global constant  
+**Kind**: global function  
 **Returns**: <code>string</code> - hashAlgo:encryptAlgo:salt:iv:payload  
 
 | Param | Type | Description |
@@ -51,10 +51,10 @@ Encrypt a string with a password using custom encryption settings.
 
 <a name="decrypt"></a>
 
-## decrypt ⇒ <code>string</code>
+## decrypt(password, encrypted-) ⇒ <code>string</code>
 Decrypt text encrypted with encrypt().
 
-**Kind**: global constant  
+**Kind**: global function  
 
 | Param | Type | Description |
 | --- | --- | --- |
