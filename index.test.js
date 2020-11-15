@@ -1,26 +1,50 @@
 import crypto from "crypto";
 
-import { encrypt, decrypt, DEFAULT_SETTINGS, internals } from "./index";
+import {
+  decrypt,
+  DEFAULT_SETTINGS,
+  encrypt,
+  encryptWithSettings,
+  internals
+} from "./index";
+
+test("readme example", () => {
+  let password, text, encrypted, decrypted;
+
+  password = "Check under the couch cushion.";
+  text = "I found my purpose.";
+
+  encrypted = encrypt(password, text);
+  decrypted = decrypt(password, encrypted);  // I found my purpose.
+
+  expect(decrypted).toBe(text);
+});
 
 test("generateSalt()", () => {
-  let salt1, salt2;
+  let len1, len2, salt1, salt2;
 
-  salt1 = internals.generateSalt();
-  salt2 = internals.generateSalt();
+  len1 = DEFAULT_SETTINGS.saltLength;
+  len2 = 64;
 
-  expect(salt1.length).toBe(DEFAULT_SETTINGS.saltLength * 2);
-  expect(salt2.length).toBe(DEFAULT_SETTINGS.saltLength * 2);
+  salt1 = internals.generateSalt(len1);
+  salt2 = internals.generateSalt(len2);
+
+  expect(salt1.length).toBe(len1 * 2);
+  expect(salt2.length).toBe(len2 * 2);
   expect(salt1).not.toBe(salt2);
 });
 
 test("generateIV()", () => {
-  let iv1, iv2;
+  let len1, len2, iv1, iv2;
 
-  iv1 = internals.generateIV();
-  iv2 = internals.generateIV();
+  len1 = DEFAULT_SETTINGS.ivLength;
+  len2 = 64;
 
-  expect(iv1.length).toBe(DEFAULT_SETTINGS.ivLength * 2);
-  expect(iv2.length).toBe(DEFAULT_SETTINGS.ivLength * 2);
+  iv1 = internals.generateIV(len1);
+  iv2 = internals.generateIV(len2);
+
+  expect(iv1.length).toBe(len1 * 2);
+  expect(iv2.length).toBe(len2 * 2);
   expect(iv1).not.toBe(iv2);
 });
 
@@ -28,11 +52,11 @@ test("generateKey()", () => {
   let password, salt1, salt2, key1, key2;
 
   password = "Γαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ξέφωτο";
-  salt1 = internals.generateSalt();
-  salt2 = internals.generateSalt();
+  salt1 = internals.generateSalt(DEFAULT_SETTINGS.saltLength);
+  salt2 = internals.generateSalt(DEFAULT_SETTINGS.saltLength);
 
-  key1 = internals.generateKey(password, salt1);
-  key2 = internals.generateKey(password, salt2);
+  key1 = internals.generateKey(password, salt1, DEFAULT_SETTINGS.hashAlgorithm);
+  key2 = internals.generateKey(password, salt2, DEFAULT_SETTINGS.hashAlgorithm);
 
   expect(key1.length).toBe(32);
   expect(key2.length).toBe(32);
@@ -141,14 +165,14 @@ test("encrypt with alternative settings", () => {
 
   settings = {
     ...DEFAULT_SETTINGS,
-    hashAlgorithm: "sha-512",
-    encryptAlgorithm: "aes-128-cbc",
+    hashAlgorithm: "md5",
+    encryptAlgorithm: "aria-128-cbc",
   };
 
   password = "Pchnąć w tę łódź jeża lub ośm skrzyń fig";
   text = crypto.randomBytes(1_000_000).toString();
 
-  encrypted = encrypt(password, text, settings);
+  encrypted = encryptWithSettings(password, settings, text);
   decrypted = decrypt(password, encrypted);
 
   expect(decrypted).toBe(text);

@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS = {
  * @property {string} salt - value used to create key
  * @property {string} iv - initialization vector used to create cipher
  * @property {string} payload - encrypted text
+ * @private
  */
 const emptyEncryptionBlock = {
   hashAlgorithm: null,
@@ -43,33 +44,39 @@ const emptyEncryptionBlock = {
 /**
  * Generate a random salt value.
  * 
+ * @param {number} len - length in bytes of the salt value
  * @returns {string}
+ * @private
  */
-const generateSalt = () =>
+const generateSalt = (len) =>
   crypto
-    .randomBytes(DEFAULT_SETTINGS.saltLength)
+    .randomBytes(len)
     .toString("hex");
 
 /**
  * Generate a random initialization vector.
  * 
+ * @param {number} len - length in bytes of the initialization vector
  * @returns {string}
+ * @private
  */
-const generateIV = () =>
+const generateIV = (len) =>
   crypto
-    .randomBytes(DEFAULT_SETTINGS.ivLength)
+    .randomBytes(len)
     .toString("hex");
 
 /**
  * Generate a key using a passwora and a salt value.
  * 
  * @param {string} password - plain text password
- * @param {strint} salt - random salt value
+ * @param {string} salt - random salt value
+ * @param {string} hashAlgorithm - OpenSSL hash algorithm
  * @returns {Buffer}
+ * @private
  */
-const generateKey = (password, salt) =>
+const generateKey = (password, salt, hashAlgorithm) =>
   crypto
-    .createHmac(DEFAULT_SETTINGS.hashAlgorithm, salt)
+    .createHash(hashAlgorithm, salt)
     .update(password)
     .digest();
 
@@ -78,6 +85,7 @@ const generateKey = (password, salt) =>
  * 
  * @param {string} encrypted - string produced by encrypt()
  * @returns {EncryptionBlock}
+ * @private
  */
 const parseEncrypted = (encrypted) => {
   let cursor, tokens, nextDelimiter;
@@ -105,21 +113,31 @@ const parseEncrypted = (encrypted) => {
  * 
  * @param {string} password - plain text password
  * @param {string} text - text to encrypt
- * @param {EncryptionSettings} [settings] - if you insist on overriding the defaults
- * @returns {EncryptionBlock}
+ * @returns {string} hashAlgo:encryptAlgo:salt:iv:payload
  */
-export const encrypt = (password, text) => {
+export const encrypt = (password, text) => 
+  encryptWithSettings(password, DEFAULT_SETTINGS, text);
+
+/**
+ * Encrypt a string with a password using custom encryption settings.
+ * 
+ * @param {string} password - plain text password
+ * @param {EncryptionSettings} settings - encryption settings
+ * @param {string} text - text to encrypt
+ * @returns {string} hashAlgo:encryptAlgo:salt:iv:payload
+ */
+export const encryptWithSettings = (password, settings, text) => {
   let block, key, cipher, cipherText;
 
   block = {
     ...emptyEncryptionBlock,
-    hashAlgorithm: DEFAULT_SETTINGS.hashAlgorithm,
-    encryptAlgorithm: DEFAULT_SETTINGS.encryptAlgorithm,
-    salt: generateSalt(),
-    iv: generateIV(),
+    hashAlgorithm: settings.hashAlgorithm,
+    encryptAlgorithm: settings.encryptAlgorithm,
+    salt: generateSalt(settings.saltLength),
+    iv: generateIV(settings.ivLength),
   };
 
-  key = generateKey(password, block.salt);
+  key = generateKey(password, block.salt, settings.hashAlgorithm);
 
   cipher = crypto.createCipheriv(
     block.encryptAlgorithm, 
@@ -151,7 +169,7 @@ export const decrypt = (password, encrypted) => {
   let block, key, decipher, decipherText;
 
   block = parseEncrypted(encrypted);
-  key = generateKey(password, block.salt);
+  key = generateKey(password, block.salt, block.hashAlgorithm);
 
   decipher = crypto.createDecipheriv(
     block.encryptAlgorithm, 
@@ -164,6 +182,10 @@ export const decrypt = (password, encrypted) => {
     .toString();
 };
 
+/**
+ * Internals exported for unit testing.
+ * @private
+ */
 export const internals = {
   generateSalt,
   generateIV,
