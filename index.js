@@ -2,7 +2,8 @@ import crypto from "crypto";
 
 /**
  * Encryption settings. Will occasionally bump these to keep up with the times, but 
- * prepending the manifest to encrypted text ensures the library is backward-compatible.
+ * the library will always be backward-compatible because the information needed to
+ * decrypt is included in the encrypted content.
  * 
  * @typedef EncryptionSettings
  * @type {object}
@@ -10,8 +11,9 @@ import crypto from "crypto";
  * @property {number} ivLength - length in bytes of initialization vector
  * @property {string} hashAlgorithm - OpenSSL hash algorithm name
  * @property {string} encryptAlgorithm - OpenSSL encryption algorithm name
+ * @property {string} manifestDelimiter - delimiter used in the encrypted manifest
  */
-const settings = {
+export const DEFAULT_SETTINGS = {
   saltLength: 8,
   ivLength: 16,
   hashAlgorithm: "sha256",
@@ -45,7 +47,7 @@ const emptyEncryptionBlock = {
  */
 const generateSalt = () =>
   crypto
-    .randomBytes(settings.saltLength)
+    .randomBytes(DEFAULT_SETTINGS.saltLength)
     .toString("hex");
 
 /**
@@ -55,21 +57,21 @@ const generateSalt = () =>
  */
 const generateIV = () =>
   crypto
-    .randomBytes(settings.ivLength)
+    .randomBytes(DEFAULT_SETTINGS.ivLength)
     .toString("hex");
 
 /**
- * Generate a key using a password and a salt value.
+ * Generate a key using a passwora and a salt value.
  * 
  * @param {string} password - plain text password
  * @param {strint} salt - random salt value
- * @returns {string}
+ * @returns {Buffer}
  */
 const generateKey = (password, salt) =>
   crypto
-    .createHmac(settings.hashAlgorithm, salt)
+    .createHmac(DEFAULT_SETTINGS.hashAlgorithm, salt)
     .update(password)
-    .digest("hex");
+    .digest();
 
 /**
  * Parse the encryption block produced by encrypt().
@@ -84,7 +86,7 @@ const parseEncrypted = (encrypted) => {
   tokens = []
 
   for (let i = 0; i < 4; i++) {
-    nextDelimiter = encrypted.indexOf(settings.manifestDelimiter, cursor);
+    nextDelimiter = encrypted.indexOf(DEFAULT_SETTINGS.manifestDelimiter, cursor);
     tokens.push(encrypted.slice(cursor, nextDelimiter));
     cursor = nextDelimiter + 1;
   }
@@ -103,6 +105,7 @@ const parseEncrypted = (encrypted) => {
  * 
  * @param {string} password - plain text password
  * @param {string} text - text to encrypt
+ * @param {EncryptionSettings} [settings] - if you insist on overriding the defaults
  * @returns {EncryptionBlock}
  */
 export const encrypt = (password, text) => {
@@ -110,15 +113,18 @@ export const encrypt = (password, text) => {
 
   block = {
     ...emptyEncryptionBlock,
-    hashAlgorithm: settings.hashAlgorithm,
-    encryptAlgorithm: settings.encryptAlgorithm,
+    hashAlgorithm: DEFAULT_SETTINGS.hashAlgorithm,
+    encryptAlgorithm: DEFAULT_SETTINGS.encryptAlgorithm,
     salt: generateSalt(),
     iv: generateIV(),
   };
 
   key = generateKey(password, block.salt);
 
-  cipher = crypto.createCipheriv(block.encryptAlgorithm, key, block.iv);
+  cipher = crypto.createCipheriv(
+    block.encryptAlgorithm, 
+    key, 
+    Buffer.from(block.iv, "hex"));
   cipherText = cipher.update(text);
 
   block.payload = Buffer
@@ -131,7 +137,7 @@ export const encrypt = (password, text) => {
     block.salt,
     block.iv,
     block.payload,
-  ].join(settings.manifestDelimiter);
+  ].join(DEFAULT_SETTINGS.manifestDelimiter);
 }
 
 /**
@@ -147,8 +153,11 @@ export const decrypt = (password, encrypted) => {
   block = parseEncrypted(encrypted);
   key = generateKey(password, block.salt);
 
-  decipher = crypto.createDecipheriv(block.encryptAlgorithm, key, block.iv);
-  decipherText = decipher.update(block.payload);
+  decipher = crypto.createDecipheriv(
+    block.encryptAlgorithm, 
+    key, 
+    Buffer.from(block.iv, "hex"));
+  decipherText = decipher.update(Buffer.from(block.payload, "hex"));
 
   return Buffer
     .concat([decipherText, decipher.final()])
@@ -156,7 +165,6 @@ export const decrypt = (password, encrypted) => {
 };
 
 export const internals = {
-  settings,
   generateSalt,
   generateIV,
   generateKey,
