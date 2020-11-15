@@ -4,22 +4,22 @@ Encrypt and decrypt strings with a minimal interface.
 
 ## Features
 
-✅ Best practice usage of Node's `crypto` module.  
-✅ Simple API.  
-✅ Sensible defaults.  
-✅ ES6 modules.  
-✅ No dependencies.  
-✅ Functional- and curry-friendly (data parameters last).  
-✅ 100% unit test coverage.  
-✅ Backwards-compatible encryption.  
+☑ Best practice usage of Node's `crypto` module.  
+☑ Simple API.  
+☑ Sensible defaults.  
+☑ ES6 modules.  
+☑ No dependencies.  
+☑ Functional- and curry-friendly (data parameters last).  
+☑ 100% unit test coverage.  
+☑ Backwards-compatible encryption.  
 
 ## Install
 
-```bash
+```shellscript
 $ npm install --save @spaceaardvark/encrypt
 ```
 
-```bash
+```shellscript
 $ yard add @spaceaardvark/encrypt
 ```
 
@@ -27,7 +27,7 @@ This library requires Node.js 14+ for ES6 module support.
 
 ## Usage
 
-```
+```javascript
   import { encrypt, decrypt } from "@spaceaardvark/encrypt";
 
   let password, text, encrypted;
