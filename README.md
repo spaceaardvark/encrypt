@@ -2,11 +2,11 @@
 
 # Encrypt
 
-Encrypt and decrypt strings with a minimal interface. Designed for ecrypting sensitive
+Encrypt and decrypt strings with a minimal interface. Designed for encrypting sensitive
 strings and files with cryptographic best practices. 
 
-<small>&nbsp;&nbsp;NOT designed for storing passwords. See 
-https://crackstation.net/hashing-security.htm.</small>
+<p style="font-size: 80%">&gt; NOT designed for storing passwords. See 
+https://crackstation.net/hashing-security.htm.</p>
 
 ## Features
 
