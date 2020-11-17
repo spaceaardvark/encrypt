@@ -82,41 +82,43 @@ your *production* hardware to find the right threshold.
 
 ---
 
-### async encrypt(password, text)
+### encrypt(password: string, text: string): Promise&lt;string&gt;
 
 Encrypts a string with a password.
 
-**password**: string - plain text password
+**password**: plain text password
 
-**text**: string - plain text to encrypt
+**text**: plain text to encrypt
 
-**returns**: string - encryption paramters prefixed to encrypted text
-
----
-
-### async encryptIterations(password, iterations, text)
-
-Encrypts a string with a password using n iterations to generate the key.
-
-**password**: string - plain text password
-
-**iterations**: number - number of iterations to generate the key
-
-**text**: string - plain text to encrypt
-
-**returns**: string - encryption paramters prefixed to encrypted text
+**returns**: Promise that resolves to encrypted text (with encryption parameters 
+prefixed)
 
 ---
 
-### async decrypt(password, encrypted)
+### encryptIterations(password: string, iterations: number, text: string): Promise&lt;string&gt;
+
+Encrypts a string with a password and a custom number of key derivation iterations.
+
+**password**: plain text password
+
+**iterations**: number of iterations to generate the key
+
+**text**: plain text to encrypt
+
+**returns**: Promise that resolves to encrypted text (with encryption parameters 
+prefixed)
+
+---
+
+### decrypt(password: string, encrypted: string): Promise&lt;string&gt; 
 
 Decrypts an encrypted string produced by `encrypt()`.
 
-**password**: string - plain text password
+**password**: plain text password
 
-**encrypted**: string - string produced by `encrypt()`
+**encrypted**: string produced by `encrypt()`
 
-**returns**: string - original plain text
+**returns**: Promise that resolves to the plain text originally passed to `encrypt()`
 
 ---
 
