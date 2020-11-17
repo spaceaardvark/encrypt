@@ -33,15 +33,15 @@ $ yarn add @spaceaardvark/encrypt
 ## Usage
 
 ```javascript
-  import { encrypt, decrypt } from "@spaceaardvark/encrypt";
+import { encrypt, decrypt } from "@spaceaardvark/encrypt";
 
-  let password, text, encrypted;
+let password, text, encrypted;
 
-  password = "Check under the couch cushion.";
-  text = "I found my purpose.";
+password = "Check under the couch cushion.";
+text = "I found my purpose.";
 
-  encrypted = await encrypt(password, text);
-  decrypted = await decrypt(password, encrypted);  // I found my purpose.
+encrypted = await encrypt(password, text);
+decrypted = await decrypt(password, encrypted);  // I found my purpose.
 ```
 
 ## Cryptography
@@ -55,9 +55,9 @@ $ yarn add @spaceaardvark/encrypt
 
 The password is combined with a random salt to produce a key. The key is combined with 
 a random initialization vector to produce the encrypted text. The final, encrypted 
-text is prefixed with the algorithm names and parameters for reliable, 
-backward-compatible decryption. (The parameters included in the encrypted format are
-"public" and do not compromise the strength of the encryption.)
+text is prefixed with the algorithm parameters for reliable, backward-compatible 
+decryption. (The parameters included in the encrypted format are "public" and do not 
+compromise the strength of the encryption.)
 
 ## Iterations
 
