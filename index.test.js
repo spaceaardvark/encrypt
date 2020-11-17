@@ -2,106 +2,50 @@ import crypto from "crypto";
 
 import {
   decrypt,
-  DEFAULT_SETTINGS,
   encrypt,
-  encryptWithSettings,
-  internals
+  encryptIterations,
 } from "./index";
 
-test("readme example", () => {
+test("encryption manifest", async () => {
+  let password, text, encrypted, tokens;
+
+  password = "Check under the couch cushion.";
+  text = "I found my purpose.";
+  
+  encrypted = await encrypt(password, text);
+  tokens = encrypted.split(":");
+
+  expect(encrypted).toBeTruthy();
+  expect(tokens[0]).toBe("1");  // version 1
+  expect(tokens[1].split(",").length).toBe(3);  // 3 parameters
+  expect(tokens[2]).toBeTruthy();  // with payload
+});
+
+test("readme example", async () => {
   let password, text, encrypted, decrypted;
 
   password = "Check under the couch cushion.";
   text = "I found my purpose.";
 
-  encrypted = encrypt(password, text);
-  decrypted = decrypt(password, encrypted);  // I found my purpose.
+  encrypted = await encrypt(password, text);
+  decrypted = await decrypt(password, encrypted);  // I found my purpose.
 
   expect(decrypted).toBe(text);
 });
 
-test("generateSalt()", () => {
-  let len1, len2, salt1, salt2;
-
-  len1 = DEFAULT_SETTINGS.saltLength;
-  len2 = 64;
-
-  salt1 = internals.generateSalt(len1);
-  salt2 = internals.generateSalt(len2);
-
-  expect(salt1.length).toBe(len1 * 2);
-  expect(salt2.length).toBe(len2 * 2);
-  expect(salt1).not.toBe(salt2);
-});
-
-test("generateIV()", () => {
-  let len1, len2, iv1, iv2;
-
-  len1 = DEFAULT_SETTINGS.ivLength;
-  len2 = 64;
-
-  iv1 = internals.generateIV(len1);
-  iv2 = internals.generateIV(len2);
-
-  expect(iv1.length).toBe(len1 * 2);
-  expect(iv2.length).toBe(len2 * 2);
-  expect(iv1).not.toBe(iv2);
-});
-
-test("generateKey()", () => {
-  let password, salt1, salt2, key1, key2;
-
-  password = "Γαζέες καὶ μυρτιὲς δὲν θὰ βρῶ πιὰ στὸ χρυσαφὶ ξέφωτο";
-  salt1 = internals.generateSalt(DEFAULT_SETTINGS.saltLength);
-  salt2 = internals.generateSalt(DEFAULT_SETTINGS.saltLength);
-
-  key1 = internals.generateKey(password, salt1, DEFAULT_SETTINGS.hashAlgorithm);
-  key2 = internals.generateKey(password, salt2, DEFAULT_SETTINGS.hashAlgorithm);
-
-  expect(key1.length).toBe(32);
-  expect(key2.length).toBe(32);
-  expect(key1).not.toBe(key2);
-});
-
-test("parseEncrypted()", () => {
-  let hashAlgorithm, encryptAlgorithm, salt, iv, payload, encrypted, block;
-
-  hashAlgorithm = "hash-algo";
-  encryptAlgorithm = "encrypt-algo";
-  salt = "salt-value";
-  iv = "iv-value";
-  payload = `payload with a ${DEFAULT_SETTINGS.manifestDelimiter} delimiter`;
-
-  encrypted = [
-    hashAlgorithm,
-    encryptAlgorithm,
-    salt,
-    iv,
-    payload
-  ].join(DEFAULT_SETTINGS.manifestDelimiter);
-
-  block = internals.parseEncrypted(encrypted);
-
-  expect(block.hashAlgorithm).toBe(hashAlgorithm);
-  expect(block.encryptAlgorithm).toBe(encryptAlgorithm);
-  expect(block.salt).toBe(salt);
-  expect(block.iv).toBe(iv);
-  expect(block.payload).toBe(payload);
-});
-
-test("encrypt a simple string", () => {
+test("encrypt a simple string", async () => {
   let password, text, encrypted, decrypted;
 
   password = "Le cœur déçu mais l'âme plutôt naïve";
   text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  encrypted = encrypt(password, text);
-  decrypted = decrypt(password, encrypted);
+  encrypted = await encrypt(password, text);
+  decrypted = await decrypt(password, encrypted);
 
   expect(decrypted).toBe(text);
 });
 
-test("encrypt an XML document", () => {
+test("encrypt an XML document", async () => {
   let password, text, encrypted, decrypted;
 
   password = "Pchnąć w tę łódź jeża lub ośm skrzyń fig";
@@ -116,64 +60,134 @@ test("encrypt an XML document", () => {
       </three>
     </one>`;
 
-  encrypted = encrypt(password, text);
-  decrypted = decrypt(password, encrypted);
+  encrypted = await encrypt(password, text);
+  decrypted = await decrypt(password, encrypted);
 
   expect(decrypted).toBe(text);
 });
 
-test("encrypt a long string", () => {
+test("encrypt a long string", async () => {
   let password, text, encrypted, decrypted;
 
   password = "Pchnąć w tę łódź jeża lub ośm skrzyń fig";
   text = crypto.randomBytes(1_000_000).toString();
 
-  encrypted = encrypt(password, text);
-  decrypted = decrypt(password, encrypted);
+  encrypted = await encrypt(password, text);
+  decrypted = await decrypt(password, encrypted);
 
   expect(decrypted).toBe(text);
 });
 
-test("decrypt with the wrong password", () => {
+test("decrypt with the wrong password", async () => {
   let password, text, encrypted;
 
   password = "Le cœur déçu mais l'âme plutôt naïve";
   text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  encrypted = encrypt(password, text);
-  expect(() => decrypt("nope", encrypted)).toThrow();
+  encrypted = await encrypt(password, text);
+  await expect(() => decrypt("nope", encrypted)).rejects.toThrow();
 });
 
-test("decrypt with tampered encrypted text", () => {
+test("decrypt with tampered encrypted text", async () => {
   let password, text, encrypted, tampered;
 
   password = "Le cœur déçu mais l'âme plutôt naïve";
   text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  encrypted = encrypt(password, text);
+  encrypted = await encrypt(password, text);
   tampered = [
     encrypted.slice(0, encrypted.length - 10),
     "0",
     encrypted.slice(encrypted.length - 11)
   ].join();
 
-  expect(() => decrypt(password, tampered)).toThrow();
+  await expect(() => decrypt(password, tampered)).rejects.toThrow();
 });
 
-test("encrypt with alternative settings", () => {
-  let settings, password, text, encrypted, decrypted;
+test("uniqueness", async () => {
+  let password, text, encrypted1, encrypted2, payload1, payload2;
 
-  settings = {
-    ...DEFAULT_SETTINGS,
-    hashAlgorithm: "md5",
-    encryptAlgorithm: "aria-128-cbc",
-  };
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  password = "Pchnąć w tę łódź jeża lub ośm skrzyń fig";
-  text = crypto.randomBytes(1_000_000).toString();
+  encrypted1 = await encrypt(password, text);
+  encrypted2 = await encrypt(password, text);
 
-  encrypted = encryptWithSettings(password, settings, text);
-  decrypted = decrypt(password, encrypted);
+  payload1 = encrypted1.slice(encrypted1.lastIndexOf(":"));
+  payload2 = encrypted2.slice(encrypted2.lastIndexOf(":"));
+
+  expect(payload1).not.toBe(payload2);
+});
+
+test("decrypt with an unsupported version", async () => {
+  let password, text, encrypted;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
+
+  encrypted = await encrypt(password, text);
+  encrypted = [
+    "99",
+    encrypted.slice(encrypted.indexOf(":")),
+  ].join();
+
+  await expect(() => decrypt(password, encrypted)).rejects.toThrow();
+});
+
+test("encrypt with fewer iterations", async () => {
+  let password, text, encrypted, decrypted;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
+
+  encrypted = await encryptIterations(password, 1, text);
+  decrypted = await decrypt(password, encrypted);
 
   expect(decrypted).toBe(text);
+});
+
+test("encrypt with more iterations", async () => {
+  let password, text, encrypted, decrypted;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
+
+  encrypted = await encryptIterations(password, 100_000, text);
+  decrypted = await decrypt(password, encrypted);
+
+  expect(decrypted).toBe(text);
+});
+
+test("encrypt with invalid passwords", async () => {
+  let password1, password2, text;
+
+  password1 = null;
+  password2 = "";
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
+
+  await expect(() => encrypt(password1, text)).rejects.toThrow();
+  await expect(() => encrypt(password2, text)).rejects.toThrow();
+});
+
+test("encrypt with invalid iterations", async () => {
+  let password, iterations1, iterations2, text;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  iterations1 = null;
+  iterations2 = 0;
+  text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
+
+  await expect(() => encryptIterations(password, iterations1, text)).rejects.toThrow();
+  await expect(() => encryptIterations(password, iterations2, text)).rejects.toThrow();
+});
+
+test("encrypt with invalid texts", async () => {
+  let password, text1, text2;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  text1 = null;
+  text2 = "";
+
+  await expect(() => encrypt(password, text1)).rejects.toThrow();
+  await expect(() => encrypt(password, text2)).rejects.toThrow();
 });

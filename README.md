@@ -2,30 +2,34 @@
 
 # Encrypt
 
-Encrypt and decrypt strings with a minimal interface.
+Encrypt and decrypt strings with a minimal interface. Designed to encrypt sensitive
+strings and files with cryptographic best practices.
+
+:warning: This library is not for storing passwords. See
+[Salted Password Hashing](https://crackstation.net/hashing-security.htm) for that
+use case.
 
 ## Features
 
-:heavy_check_mark: Best practice usage of Node's `crypto` module.  
+:heavy_check_mark: Best practice cryptography.  
 :heavy_check_mark: Simple API.  
-:heavy_check_mark: Sensible defaults.  
-:heavy_check_mark: ES6 modules.  
+:heavy_check_mark: ES6 modules.
 :heavy_check_mark: No dependencies.  
 :heavy_check_mark: Functional- and curry-friendly (data parameters last).  
 :heavy_check_mark: 100% unit test coverage.  
-:heavy_check_mark: Backwards-compatible encryption.  
+:heavy_check_mark: Backward-compatible encryption.  
 
 ## Install
+
+Requires Node.js v14 or higher.
 
 ```shell
 $ npm install --save @spaceaardvark/encrypt
 ```
 
 ```shell
-$ yard add @spaceaardvark/encrypt
+$ yarn add @spaceaardvark/encrypt
 ```
-
-This library requires Node.js 14+ for ES6 module support.
 
 ## Usage
 
@@ -37,97 +41,85 @@ This library requires Node.js 14+ for ES6 module support.
   password = "Check under the couch cushion.";
   text = "I found my purpose.";
 
-  encrypted = encrypt(password, text);
-  decrypted = decrypt(password, encrypted);  // I found my purpose.
+  encrypted = await encrypt(password, text);
+  decrypted = await decrypt(password, encrypted);  // I found my purpose.
 ```
 
-## How it works
+## Cryptography
 
-1. Generates a random salt value.
-1. Derives a cryptographic key (sha256) from the password and the salt.
-1. Generates a random initialization vector.
-1. Encrypts the text (aes-256-cbc) using the key and the initialization vector.
-1. Prefixes the algorithm names, salt, and initialization vector to the encrypted text so it can be decrypted with the same password.
+* Key derivation function (KDF): PBKDF2, SHA256, `crypto.pbkdf2()`
+* Salt: random, `crypto.randomBytes()`
+* Iterations: customizable, default is 5,000 (see next section)
+* Cipher algorithm: AES-256-CBC, `crypto.createCipheriv()`
+* Initialization vector: random, `crypto.randomBytes()`
+* Encrypted format: `kdf(params):cipher(params):payload`
 
-You can override the default algorithms with `encryptWithSettings()`.
+The password is combined with a random salt to produce a key. The key is combined with 
+a random initialization vector to produce the encrypted text. The final, encrypted 
+text is prefixed with the algorithm names and parameters for reliable, 
+backward-compatible decryption. (The parameters included in the encrypted format are
+"public" and do not compromise the strength of the encryption.)
+
+## Iterations
+
+The strength of the encryption is largely determined by the number of iterations used
+to transform the password into a cryptographic key. Generating the key over and over 
+is called key stretching and is discussed at length 
+[here](https://crackstation.net/hashing-security.htm).
+
+The `encrypt()` function uses 5,000 iterations. You can adjust this number by calling
+`encryptIterations()` instead.
+
+| Iterations | Encryption speed | Vulnerability to dictionary and brute-force attacks |
+| ---------- | ---------------- | --------------------------------------------------- |
+| :blue_arrow_up: higher | :snail: slower | :lock: decreases vulnerability |
+| :blue_arrow_down: lower | :zap: faster | :warning: increases vulnerability |
+
+**So how many iterations should I use**? As many as you can without creating (1) a 
+negative user experience and/or (2) unacceptable strain on your hardware. Run tests on 
+your *production* hardware to find the right threshold.
 
 ## API
 
-### Functions
+---
 
-<dl>
-<dt><a href="#encrypt">encrypt(password, text)</a> ⇒ <code>string</code></dt>
-<dd><p>Encrypt a string with a password.</p>
-</dd>
-<dt><a href="#encryptWithSettings">encryptWithSettings(password, settings, text)</a> ⇒ <code>string</code></dt>
-<dd><p>Encrypt a string with a password using custom encryption settings.</p>
-</dd>
-<dt><a href="#decrypt">decrypt(password, encrypted-)</a> ⇒ <code>string</code></dt>
-<dd><p>Decrypt text encrypted with encrypt().</p>
-</dd>
-</dl>
+### async encrypt(password, text)
 
-### Types
+Encrypts a string with a password.
 
-<dl>
-<dt><a href="#EncryptionSettings">EncryptionSettings</a> : <code>object</code></dt>
-<dd><p>Encryption settings. Will occasionally bump these to keep up with the times, but 
-the library will always be backward-compatible because the information needed to
-decrypt is included in the encrypted content.</p>
-</dd>
-</dl>
+**password**: string - plain text password
 
-<a name="encrypt"></a>
+**text**: string - plain text to encrypt
 
-### encrypt(password, text) ⇒ <code>string</code>
-Encrypt a string with a password.
+**returns**: string - encryption paramters prefixed to encrypted text
 
-**Returns**: <code>string</code> - hashAlgo:encryptAlgo:salt:iv:payload  
+---
 
-| Param | Type | Description |
-| --- | --- | --- |
-| password | <code>string</code> | plain text password |
-| text | <code>string</code> | text to encrypt |
+### async encryptIterations(password, iterations, text)
 
-<a name="encryptWithSettings"></a>
+Encrypts a string with a password using n iterations to generate the key.
 
-### encryptWithSettings(password, settings, text) ⇒ <code>string</code>
-Encrypt a string with a password using custom encryption settings.
+**password**: string - plain text password
 
-**Returns**: <code>string</code> - hashAlgo:encryptAlgo:salt:iv:payload  
+**iterations**: number - number of iterations to generate the key
 
-| Param | Type | Description |
-| --- | --- | --- |
-| password | <code>string</code> | plain text password |
-| settings | [<code>EncryptionSettings</code>](#EncryptionSettings) | encryption settings |
-| text | <code>string</code> | text to encrypt |
+**text**: string - plain text to encrypt
 
-<a name="decrypt"></a>
+**returns**: string - encryption paramters prefixed to encrypted text
 
-### decrypt(password, encrypted-) ⇒ <code>string</code>
-Decrypt text encrypted with encrypt().
+---
 
-| Param | Type | Description |
-| --- | --- | --- |
-| password | <code>string</code> | password used to generate encryption key |
-| encrypted- | <code>string</code> | string produced by encrypt() |
+### async decrypt(password, encrypted)
 
-<a name="EncryptionSettings"></a>
+Decrypts an encrypted string produced by `encrypt()`.
 
-### EncryptionSettings : <code>object</code>
-Encryption settings. Will occasionally bump these to keep up with the times, but 
-the library will always be backward-compatible because the information needed to
-decrypt is included in the encrypted content.
+**password**: string - plain text password
 
-**Properties**
+**encrypted**: string - string produced by `encrypt()`
 
-| Name | Type | Description |
-| --- | --- | --- |
-| saltLength | <code>number</code> | length in bytes of salt |
-| ivLength | <code>number</code> | length in bytes of initialization vector |
-| hashAlgorithm | <code>string</code> | OpenSSL hash algorithm name |
-| encryptAlgorithm | <code>string</code> | OpenSSL encryption algorithm name |
-| manifestDelimiter | <code>string</code> | delimiter used in the encrypted manifest |
+**returns**: string - original plain text
+
+---
 
 ## Contributing
 
