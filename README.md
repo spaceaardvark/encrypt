@@ -80,47 +80,35 @@ your *production* hardware to find the right threshold.
 
 ## API
 
----
-
-### encrypt(password: string, text: string): Promise&lt;string&gt;
+### :lock: encrypt(*password*: string, *text*: string): Promise&lt;string&gt;
 
 Encrypts a string with a password.
 
-**password**: plain text password
-
+**password**: plain text password  
 **text**: plain text to encrypt
 
 **returns**: Promise that resolves to encrypted text (with encryption parameters 
 prefixed)
 
----
-
-### encryptIterations(password: string, iterations: number, text: string): Promise&lt;string&gt;
+### :lock: encryptIterations(password: string, iterations: number, text: string): Promise&lt;string&gt;
 
 Encrypts a string with a password and a custom number of key derivation iterations.
 
-**password**: plain text password
-
-**iterations**: number of iterations to generate the key
-
+**password**: plain text password  
+**iterations**: number of iterations to generate the key  
 **text**: plain text to encrypt
 
 **returns**: Promise that resolves to encrypted text (with encryption parameters 
 prefixed)
 
----
-
-### decrypt(password: string, encrypted: string): Promise&lt;string&gt; 
+### :unlock: decrypt(password: string, encrypted: string): Promise&lt;string&gt; 
 
 Decrypts an encrypted string produced by `encrypt()`.
 
-**password**: plain text password
-
+**password**: plain text password  
 **encrypted**: string produced by `encrypt()`
 
 **returns**: Promise that resolves to the plain text originally passed to `encrypt()`
-
----
 
 ## Contributing
 
