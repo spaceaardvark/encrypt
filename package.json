@@ -1,14 +1,13 @@
 {
     "name": "@spaceaardvark/encrypt",
     "version": "1.0.0",
-    "description": "Encrypt and decrypt strings. Sensible defaults, no dependencies, functional-friendly.",
+    "description": "Encrypt and decrypt strings with a minimal interface and cryptographic best practices.",
     "main": "index.js",
     "type": "module",
     "engines": {
         "node": ">=14"
     },
     "scripts": {
-        "docs": "jsdoc2md index.js > ./docs.md",
         "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
         "test-watch": "node --experimental-vm-modules node_modules/.bin/jest --coverage --watch"
     },
