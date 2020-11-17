@@ -80,7 +80,7 @@ your *production* hardware to find the right threshold.
 
 ## API
 
-### :lock: encrypt(*password*: string, *text*: string): Promise&lt;string&gt;
+### :lock: encrypt(password: string, text: string): Promise&lt;string&gt;
 
 Encrypts a string with a password.
 
