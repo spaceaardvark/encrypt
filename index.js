@@ -95,7 +95,7 @@ const decrypt1 = async (password, manifest, payload) => {
 ENCRYPTION_VERSION["1"].decrypt = decrypt1;
 
 /**
- * Decrypt text encrypted with encrypt().
+ * Decrypt a string encrypted with encrypt().
  * 
  * @param {string} password - password used to generate encryption key
  * @param {string} encrypted- string produced by encrypt()

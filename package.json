@@ -1,16 +1,11 @@
 {
     "name": "@spaceaardvark/encrypt",
-    "version": "1.0.0",
-    "description": "Encrypt and decrypt strings with a minimal interface and cryptographic best practices.",
+    "version": "1.0.1",
+    "description": "Encrypt and decrypt strings with a minimal interface, no dependencies, and cryptographic best practices.",
     "main": "index.js",
     "type": "module",
     "engines": {
         "node": ">=14"
-    },
-    "scripts": {
-        "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
-        "test-watch": "node --experimental-vm-modules node_modules/.bin/jest --coverage --watch",
-        "publish": "npm publish --access public"
     },
     "repository": {
         "type": "git",
@@ -32,6 +27,15 @@
         "url": "https://github.com/spaceaardvark/encrypt/issues"
     },
     "homepage": "https://github.com/spaceaardvark/encrypt#readme",
+    "files": [
+        "index.js",
+        "index.d.ts"
+    ],
+    "scripts": {
+        "test": "node --experimental-vm-modules node_modules/.bin/jest --coverage",
+        "test-watch": "node --experimental-vm-modules node_modules/.bin/jest --coverage --watch",
+        "publish": "npm publish --access public"
+    },
     "devDependencies": {
         "eslint": "^7.13.0",
         "eslint-plugin-jest": "^24.1.3",
