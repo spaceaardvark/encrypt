@@ -2,18 +2,17 @@
 
 # Encrypt
 
-Encrypt and decrypt strings with a minimal interface. Designed to encrypt sensitive
-strings and files with cryptographic best practices.
+Encrypt and decrypt strings with a minimal interface. Designed for ecrypting sensitive
+strings and files with cryptographic best practices. 
 
-:warning: This library is not for storing passwords. See
-[Salted Password Hashing](https://crackstation.net/hashing-security.htm) for that
-use case.
+<small>&nbsp;&nbsp;NOT designed for storing passwords. See 
+https://crackstation.net/hashing-security.htm.</small>
 
 ## Features
 
 :heavy_check_mark: Best practice cryptography.  
 :heavy_check_mark: Simple API.  
-:heavy_check_mark: ES6 modules.
+:heavy_check_mark: ES6 modules.  
 :heavy_check_mark: No dependencies.  
 :heavy_check_mark: Functional- and curry-friendly (data parameters last).  
 :heavy_check_mark: 100% unit test coverage.  
@@ -70,12 +69,12 @@ is called key stretching and is discussed at length
 The `encrypt()` function uses 5,000 iterations. You can adjust this number by calling
 `encryptIterations()` instead.
 
-| Iterations | Encryption speed | Vulnerability to dictionary and brute-force attacks |
+| Iterations | Encryption speed | Dictionary and brute-force attacks |
 | ---------- | ---------------- | --------------------------------------------------- |
-| :blue_arrow_up: higher | :snail: slower | :lock: decreases vulnerability |
-| :blue_arrow_down: lower | :zap: faster | :warning: increases vulnerability |
+| :arrow_up: higher | :snail: slower | :lock: decreases vulnerability |
+| :arrow_down: lower | :zap: faster | :warning: increases vulnerability |
 
-**So how many iterations should I use**? As many as you can without creating (1) a 
+**How many iterations should you use**? As many as you can without creating (1) a 
 negative user experience and/or (2) unacceptable strain on your hardware. Run tests on 
 your *production* hardware to find the right threshold.
 
