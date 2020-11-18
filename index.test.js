@@ -11,7 +11,7 @@ test("encryption manifest", async () => {
 
   password = "Check under the couch cushion.";
   text = "I found my purpose.";
-  
+
   encrypted = await encrypt(password, text);
   tokens = encrypted.split(":");
 
@@ -165,8 +165,8 @@ test("encrypt with invalid passwords", async () => {
   password2 = "";
   text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  await expect(() => encrypt(password1, text)).rejects.toThrow();
-  await expect(() => encrypt(password2, text)).rejects.toThrow();
+  await expect(() => encrypt(password1, text)).rejects.toThrow(TypeError);
+  await expect(() => encrypt(password2, text)).rejects.toThrow(TypeError);
 });
 
 test("encrypt with invalid iterations", async () => {
@@ -177,8 +177,8 @@ test("encrypt with invalid iterations", async () => {
   iterations2 = 0;
   text = "Portez ce vieux whisky au juge blond qui fume sur son île intérieure";
 
-  await expect(() => encryptIterations(password, iterations1, text)).rejects.toThrow();
-  await expect(() => encryptIterations(password, iterations2, text)).rejects.toThrow();
+  await expect(() => encryptIterations(password, iterations1, text)).rejects.toThrow(TypeError);
+  await expect(() => encryptIterations(password, iterations2, text)).rejects.toThrow(TypeError);
 });
 
 test("encrypt with invalid texts", async () => {
@@ -188,6 +188,28 @@ test("encrypt with invalid texts", async () => {
   text1 = null;
   text2 = "";
 
-  await expect(() => encrypt(password, text1)).rejects.toThrow();
-  await expect(() => encrypt(password, text2)).rejects.toThrow();
+  await expect(() => encrypt(password, text1)).rejects.toThrow(TypeError);
+  await expect(() => encrypt(password, text2)).rejects.toThrow(TypeError);
+});
+
+test("decrypt with invalid passwords", async () => {
+  let password1, password2, encrypted;
+
+  password1 = null;
+  password2 = "";
+  encrypted = "1234567890";
+
+  await expect(() => decrypt(password1, encrypted)).rejects.toThrow(TypeError);
+  await expect(() => encrypt(password2, encrypted)).rejects.toThrow(TypeError);
+});
+
+test("decrypt with invalid encrypted text", async () => {
+  let password, encrypted1, encrypted2;
+
+  password = "Le cœur déçu mais l'âme plutôt naïve";
+  encrypted1 = null;
+  encrypted2 = "";
+
+  await expect(() => decrypt(password, encrypted1)).rejects.toThrow(TypeError);
+  await expect(() => encrypt(password, encrypted2)).rejects.toThrow(TypeError);
 });

@@ -102,6 +102,11 @@ ENCRYPTION_VERSION["1"].decrypt = decrypt1;
  * @returns {string}
  */
 export const decrypt = async (password, encrypted) => {
+  if (typeof password !== "string" || password.length == 0) 
+    throw new TypeError(`Invalid password: ${password}`);
+  if (typeof encrypted !== "string" || encrypted.length == 0) 
+    throw new TypeError(`Invalid encrypted text: ${encrypted}`);
+
   let cursor, next, i, fragment, version;
 
   cursor = 0;
