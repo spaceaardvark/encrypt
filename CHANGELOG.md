@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 ### Changed
-- Documentation tweaks
+- Added parameter checking to `decrypt()` and updated unit tests.
+- Documentation tweaks.
 
 ## [1.0.1] - 2020-11-17
 ### Added
